@@ -1,0 +1,31 @@
+name: Weekly Gap Scanner
+
+# Runs automatically every Friday at 4:00 PM IST (10:30 UTC),
+# after the Indian market closes. You can also trigger it manually
+# from the "Actions" tab on GitHub any time.
+on:
+  schedule:
+    - cron: "30 10 * * 5"   # Friday, 10:30 UTC = 4:00 PM IST
+  workflow_dispatch:        # allows manual "Run workflow" button
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install yfinance pandas requests
+
+      - name: Run gap scanner
+        env:
+          GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          RECIPIENT_EMAIL: ${{ secrets.RECIPIENT_EMAIL }}
+        run: python gap_scanner.py
